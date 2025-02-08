@@ -2,17 +2,25 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Categories extends Model
 {
-    protected $table = 'categries';
+    use HasFactory;
+    protected $table = 'categories';
     protected $guarded = [];
     protected $primaryKey = "id";
-    protected $fillable = ['name','name_ar','description','description_ar','image'];
+    protected $fillable = [
+        'name',
+        'name_ar',
+        'description',
+        'description_ar',
+        'image'
+    ];
 
     public function items()
     {
-        return $this->hasMany('App\Models\Items', 'id');
+        return $this->hasMany(Items::class);
     }
 }
