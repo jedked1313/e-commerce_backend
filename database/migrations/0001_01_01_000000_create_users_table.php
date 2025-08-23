@@ -16,7 +16,9 @@ return new class extends Migration
             $table->string("user_name",100);
             $table->string("user_email",100)->unique();
             $table->string("user_password",255);
-            $table->integer("user_verifycode");
+            $table->integer("user_verifycode")->nullable();
+            $table->integer('resend_attempts')->default(0);
+            $table->timestamp('expires_at')->nullable();
             $table->tinyInteger("user_approve")->default("0");
             $table->string("user_image")->nullable();
             $table->timestamp('email_verified_at')->nullable();

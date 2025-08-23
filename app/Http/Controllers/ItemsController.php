@@ -189,6 +189,30 @@ class ItemsController extends Controller
         }
     }
 
+    // Search for items by english or arabic name
+    public function searchItems(Request $request)
+    {
+        try {
+            $searchTerm = $request->input('query');
+
+            $items = Items::with(['images:item_id,image'])
+                ->where('name', 'LIKE', '%' . $searchTerm . '%')
+                ->orWhere('name_ar', 'LIKE', '%' . $searchTerm . '%')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $items
+            ], 200);
+        } catch (\Throwable $th) {
+            $response = [
+                'status' => 'failure',
+                'message' => 'An unexpected error occurred.'
+            ];
+            return response()->json($response, 500);
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      */

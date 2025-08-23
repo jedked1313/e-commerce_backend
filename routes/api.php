@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ConfirmEmailController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\SendVerifyCodeController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\HomeController;
@@ -18,7 +20,7 @@ Route::get('/user', function (Request $request) {
 
 // -------------- Auth -------------- //
 Route::post('/auth/signup',[SignupController::class,'index']);
-Route::post('/auth/send_again',[SignupController::class,'generateCode']);
+Route::post('/auth/send_verifycode',[SendVerifyCodeController::class,'index']);
 Route::post('/auth/login',[LoginController::class,'index']);
 Route::post('/auth/confirm_email',[ConfirmEmailController::class,'index']);
 Route::post('/auth/logout',[LogoutController::class,'index'])->middleware(['auth:sanctum']);
@@ -31,14 +33,21 @@ Route::post('/auth/reset_password',[ForgotPasswordController::class,'resetPasswo
 // -------------- Home -------------- //
 Route::post('/home', [HomeController::class,'index']);
 
-
 // -------------- Categories -------------- //
 Route::apiResource('categories', CategoriesController::class);
 
 // -------------- Items -------------- //
 Route::apiResource('items', ItemsController::class);
 Route::post('/category_items/{id?}', [ItemsController::class,'categoryItems']);
+Route::post('/items/search/{id?}', [ItemsController::class,'searchItems']);
 
 // -------------- Favorites -------------- //
 Route::post('/favorites', [FavoritesController::class,'index']);
 Route::post('/favorites/add_or_remove', [FavoritesController::class,'addOrRemove']);
+
+// -------------- Cart -------------- //
+Route::post('/cart', [CartController::class,'index']);
+Route::post('/cart/add', [CartController::class,'addToCart']);
+Route::delete('/cart/remove', [CartController::class,'remove']);
+Route::post('/cart/decrease', [CartController::class,'decrease']);
+Route::post('/cart/increase', [CartController::class,'increase']);

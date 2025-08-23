@@ -32,9 +32,9 @@ class CategoriesController extends Controller
                 'image'          => 'nullable|image|max:1024',
             ], [
                 'name_ar.required' => 'The Arabic name is required.',
-                'name.required' => 'The name is required.',
-                'name_ar.max' => 'The Arabic name cannot be more than 255 characters.',
-                'name.max' => 'The name cannot be more than 255 characters.',
+                'name.required'    => 'The name is required.',
+                'name_ar.max'      => 'The Arabic name cannot be more than 255 characters.',
+                'name.max'         => 'The name cannot be more than 255 characters.',
             ]);
 
             $data = Categories::create($fields);

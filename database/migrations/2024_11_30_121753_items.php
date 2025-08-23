@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string("description_ar")->nullable();
             $table->string("description")->nullable();
             $table->unsignedBigInteger("images")->nullable();
-            $table->integer("quantity");
+            $table->integer("stock_quantity");
             $table->tinyInteger("is_active");
             $table->float("price");
             $table->smallInteger("discount")->nullable();
