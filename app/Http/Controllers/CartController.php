@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Cart;
+use App\Models\Coupons;
+use Illuminate\Support\Facades\Date;
 
 class CartController extends Controller
 {
@@ -12,71 +14,95 @@ class CartController extends Controller
      */
     public function index(Request $request)
     {
-        $cartItems = Cart::with(['items.singleImage'])
-            ->where('user_id', $request->user_id)
-            ->get(['user_id', 'item_id', 'quantity']);
+        try {
+            $cartItems = Cart::with(['items.singleImage'])
+                ->where('user_id', $request->user_id)
+                ->get(['user_id', 'item_id', 'quantity']);
 
-        // Check if the cart is empty
-        if ($cartItems->isEmpty()) {
+            // Check if the cart is empty
+            if ($cartItems->isEmpty()) {
+                return response()->json([
+                    'status' => 'failure',
+                    'message' => 'No items found in the cart.'
+                ], 404);
+            }
+
             return response()->json([
+                'status' => 'success',
+                'data' => $cartItems
+            ], 200);
+        } catch (\Throwable $th) {
+            $response = [
                 'status' => 'failure',
-                'message' => 'No items found in the cart.'
-            ], 404);
+                'message' => 'An unexpected error occurred.'
+            ];
+            return response()->json($response, 500);
         }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $cartItems
-        ], 200);
     }
 
     // Increase the quantity of an item in the cart
     public function increase(Request $request)
     {
-        $cart_item = Cart::where('item_id', $request->item_id)->where('user_id', $request->user_id)->first();
-        if ($cart_item) {
-            $cart_item->quantity += 1; // Increase the quantity by 1
-            $cart_item->save();
-            $response = [
-                'status' => 'success',
-                'message' => 'The item has been successfully increased in the cart.'
-            ];
-            return response()->json($response, 200);
-        } else {
+        try {
+            $cart_item = Cart::where('item_id', $request->item_id)->where('user_id', $request->user_id)->first();
+            if ($cart_item) {
+                $cart_item->quantity += 1; // Increase the quantity by 1
+                $cart_item->save();
+                $response = [
+                    'status' => 'success',
+                    'message' => 'The item has been successfully increased in the cart.'
+                ];
+                return response()->json($response, 200);
+            } else {
+                $response = [
+                    'status' => 'failure',
+                    'message' => 'Item not found in the cart.'
+                ];
+                return response()->json($response, 404);
+            }
+        } catch (\Throwable $th) {
             $response = [
                 'status' => 'failure',
-                'message' => 'Item not found in the cart.'
+                'message' => 'An unexpected error occurred.'
             ];
-            return response()->json($response, 404);
+            return response()->json($response, 500);
         }
     }
 
     // Decrease the quantity of an item in the cart
     public function decrease(Request $request)
     {
-        $cart_item = Cart::where('item_id', $request->item_id)->where('user_id', $request->user_id)->first();
-        if ($cart_item) {
-            if ($cart_item->quantity > 1) {
-                $cart_item->quantity -= 1; // Decrease the quantity by 1
-                $cart_item->save();
-                $response = [
-                    'status' => 'success',
-                    'message' => 'The item has been successfully decreased in the cart.',
-                ];
-                return response()->json($response, 200);
+        try {
+            $cart_item = Cart::where('item_id', $request->item_id)->where('user_id', $request->user_id)->first();
+            if ($cart_item) {
+                if ($cart_item->quantity > 1) {
+                    $cart_item->quantity -= 1; // Decrease the quantity by 1
+                    $cart_item->save();
+                    $response = [
+                        'status' => 'success',
+                        'message' => 'The item has been successfully decreased in the cart.',
+                    ];
+                    return response()->json($response, 200);
+                } else {
+                    $response = [
+                        'status' => 'failure',
+                        'message' => 'Cannot decrease quantity below 1.'
+                    ];
+                    return response()->json($response, 400);
+                }
             } else {
                 $response = [
                     'status' => 'failure',
-                    'message' => 'Cannot decrease quantity below 1.'
+                    'message' => 'Item not found in the cart.'
                 ];
-                return response()->json($response, 400);
+                return response()->json($response, 404);
             }
-        } else {
+        } catch (\Throwable $th) {
             $response = [
                 'status' => 'failure',
-                'message' => 'Item not found in the cart.'
+                'message' => 'An unexpected error occurred.'
             ];
-            return response()->json($response, 404);
+            return response()->json($response, 500);
         }
     }
 
@@ -113,17 +139,37 @@ class CartController extends Controller
         }
     }
 
+    // Check if used coupon is valid
+    public function checkCoupon(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required',
+            ]);
+
+            $coupon = Coupons::where("name", $request->name)->firstOrFail();
+            if ($coupon->expiration_date > Date::now() && $coupon->usage_count > 0) {
+                $response = ["status" => "success", "message" => "This coupon is valid."];
+                return response()->json($response, 200);
+            } else {
+                return response()->json(["status" => "failure", "message" => "This coupon is invalid or expired."], 404);
+            }
+        } catch (\Throwable $th) {
+            return response()->json(["status" => "failure", "message" => "An unexpected error occurred, Please try again later."], 500);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      */
     public function remove(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|integer',
-            'item_id' => 'required|integer',
-        ]);
-
         try {
+            $request->validate([
+                'user_id' => 'required|integer',
+                'item_id' => 'required|integer',
+            ]);
+
             $cartItem = Cart::where('user_id', $request->user_id)
                 ->where('item_id', $request->item_id)
                 ->firstOrFail();

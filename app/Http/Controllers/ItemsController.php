@@ -73,57 +73,6 @@ class ItemsController extends Controller
             $item->save();
             $response = ['status' => 'success', 'data' => $item];
             return response()->json($response, 200);
-            // try {
-            //     // Validation for input fields
-            //     $fields = $request->validate([
-            //         'category_id'    => 'required|integer|exists:categories,id',
-            //         'name'           => 'required|max:255',
-            //         'name_ar'        => 'required|max:255',
-            //         'description'    => 'nullable',
-            //         'description_ar' => 'nullable',
-            //         'images'         => 'nullable|array', // Accepts an array of images
-            //         'images.*'       => 'image|max:1024', // Validate each image in the array
-            //         'price'          => 'required|integer',
-            //         'discount'       => 'nullable',
-            //         'quantity'       => 'required|integer',
-            //         'is_active'      => 'required|boolean',
-            //     ]);
-
-            //     // Create the item in the database
-            //     $item = Items::create([
-            //         'category_id'    => $fields['category_id'],
-            //         'name'           => $fields['name'],
-            //         'name_ar'        => $fields['name_ar'],
-            //         'description'    => $fields['description'],
-            //         'description_ar' => $fields['description_ar'],
-            //         'price'          => $fields['price'],
-            //         'discount'       => $fields['discount'],
-            //         'quantity'       => $fields['quantity'],
-            //         'is_active'      => $fields['is_active'],
-            //     ]);
-
-            //     // Handle multiple images if provided
-            //     if ($request->has('images')) {
-            //         $images = [];
-            //         foreach ($request->images as $image) {
-            //             // Store image and get its path
-            //             $imagePath = $image->store('item_images', 'public');
-
-            //             // Add the image to the ItemImages table
-            //             $images[] = [
-            //                 'item_id' => $item->id,
-            //                 'image'   => $imagePath,
-            //             ];
-            //         }
-
-            //         // Bulk insert multiple images into the ItemImages table
-            //         ItemImages::insert($images);
-            //     }
-
-            //     // After saving the item and images, return the item with associated images
-            //     $item->images = $item->images; // Assuming `images()` is defined in the Item model
-            //     $response = ['status' => 'success', 'data' => $item];
-            //     return response()->json($response, 200);
         } catch (\Throwable $th) {
             $response = ['status' => 'failure', 'message' => 'An unexpected error occurred.'];
             return response()->json($response, 500);

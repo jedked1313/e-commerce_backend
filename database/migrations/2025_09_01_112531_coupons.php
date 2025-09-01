@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cart', function (Blueprint $table) {
+        Schema::create('coupons', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("item_id")->constrained()->cascadeOnDelete()
-            ->cascadeOnUpdate();
-            $table->foreignId("user_id")->references("user_id")->on("users")->constrained()->cascadeOnDelete()
-            ->cascadeOnUpdate();
-            $table->integer("quantity")->default(1);
+            $table->string('name', 50)->unique();
+            $table->integer('discout')->default(0);
+            $table->integer('usage_count')->nullable();
+            $table->dateTime('expiration_date')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cart');
+        Schema::dropIfExists('coupons');
     }
 };
